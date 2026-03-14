@@ -1,0 +1,29 @@
+name: Python Code Check
+
+on: [push]
+
+jobs:
+  verify-code:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Check syntax for all scripts
+      run: |
+        python -m py_compile src/train_model.py
+        python -m py_compile src/data_processing.py
+        python -m py_compile src/evaluate_model.py
+        python -m py_compile src/utils.py
+        python -m py_compile app/app.py
