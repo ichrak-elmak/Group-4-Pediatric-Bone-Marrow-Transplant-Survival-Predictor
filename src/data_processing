@@ -1,0 +1,39 @@
+import pandas as pd
+import numpy as np
+import logging
+from src.utils import get_logger
+
+logger = get_logger(__name__)
+
+def optimize_memory(df: pd.DataFrame) -> pd.DataFrame:
+    """Reduces memory usage by converting types."""
+    logger.info("Friend's Task: Optimizing memory usage...")
+    for col in df.columns:
+        col_type = df[col].dtype
+        if col_type == 'float64': df[col] = df[col].astype('float32')
+        elif col_type == 'int64': df[col] = df[col].astype('int32')
+    return df
+
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Handles missing values and basic categorical encoding."""
+    logger.info("Friend's Task: Cleaning data and handling missing values...")
+    bad_columns = ['id', 'survival_time', 'time_to_aGvHD_III_IV', 'Relapse', 'time', 'date']
+    df = df.drop(columns=[c for c in bad_columns if c in df.columns], errors='ignore')
+    
+    num_cols = df.select_dtypes(include=[np.number]).columns
+    df[num_cols] = df[num_cols].fillna(df[num_cols].median())
+    
+    cat_cols = df.select_dtypes(include=['object', 'category']).columns
+    for col in cat_cols:
+        df[col] = df[col].fillna(df[col].mode()[0] if not df[col].mode().empty else 'Unknown')
+    
+    df = pd.get_dummies(df, columns=cat_cols, drop_first=True)
+    return optimize_memory(df)
+
+def handle_outliers(df: pd.DataFrame) -> pd.DataFrame:
+    """Clips extreme outliers."""
+    logger.info("Friend's Task: Handling outliers via clipping...")
+    target_cols = ['CD34kgx10d6', 'CD3dkgx10d8', 'WBCx10d8', 'MNCkgx10d8', 'RNCdkgx10d8']
+    for col in [c for c in target_cols if c in df.columns]:
+        df[col] = df[col].clip(lower=df[col].quantile(0.01), upper=df[col].quantile(0.99))
+    return df
