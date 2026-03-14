@@ -1,0 +1,2 @@
+# Group-4-Pediatric-Bone-Marrow-Transplant-Survival-Predictor
+This repository contains a Machine Learning project designed to predict the survival outcomes of pediatric patients undergoing Bone Marrow Transplantation (BMT). By analyzing a variety of clinical, genetic, and donor-recipient factors, this tool aims to provide data-driven insights that could assist in risk assessment and clinical decision-making.
